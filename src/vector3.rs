@@ -1,6 +1,7 @@
-use std::ops::{AddAssign, Neg, SubAssign, Mul};
-use num::{Num, Signed};
+use std::ops::{AddAssign, Mul, Neg, SubAssign};
+
 use derive_more::{Add, Sub};
+use num::{Num, Signed};
 
 #[derive(Debug, Copy, Clone)]
 #[derive(Add, Sub)]
@@ -21,7 +22,7 @@ impl<T: Signed> Vector3<T> {
         Self {
             x: self.x.abs(),
             y: self.y.abs(),
-            z: self.z.abs()
+            z: self.z.abs(),
         }
     }
 }
