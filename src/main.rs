@@ -10,4 +10,5 @@ fn main() {
     v3 += v3;
     println!("{:?}", v3);
     println!("{:?}", v3-v1);
+    println!("{:?} {:?}", -v1, (-v1).abs())
 }
