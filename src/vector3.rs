@@ -1,7 +1,9 @@
-use std::ops::{Add, AddAssign, Neg, Sub, SubAssign, Mul};
+use std::ops::{AddAssign, Neg, SubAssign, Mul};
 use num::{Num, Signed};
+use derive_more::{Add, Sub};
 
 #[derive(Debug, Copy, Clone)]
+#[derive(Add, Sub)]
 pub struct Vector3<T: Num> {
     pub x: T,
     pub y: T,
@@ -36,35 +38,11 @@ impl<T> Neg for Vector3<T> where T: Neg<Output=T> + Num {
     }
 }
 
-impl<T> Add for Vector3<T> where T: Add<Output=T> + Num {
-    type Output = Self;
-
-    fn add(self, other: Self) -> Self::Output {
-        Self {
-            x: self.x + other.x,
-            y: self.y + other.y,
-            z: self.z + other.z,
-        }
-    }
-}
-
 impl<T> AddAssign for Vector3<T> where T: AddAssign + Num {
     fn add_assign(&mut self, rhs: Self) {
         self.x += rhs.x;
         self.y += rhs.y;
         self.z += rhs.z;
-    }
-}
-
-impl<T> Sub for Vector3<T> where T: Sub<Output=T> + Num {
-    type Output = Self;
-
-    fn sub(self, other: Self) -> Self::Output {
-        Self {
-            x: self.x - other.x,
-            y: self.y - other.y,
-            z: self.z - other.z,
-        }
     }
 }
 
