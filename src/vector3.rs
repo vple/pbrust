@@ -1,11 +1,11 @@
-use std::ops::{Mul, Neg};
+use std::ops::Neg;
 
-use derive_more::{Add, AddAssign, Sub, SubAssign};
+use derive_more::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 use num::{Num, Signed};
 
 #[derive(Debug, Copy, Clone, PartialEq)]
-#[derive(Add, Sub)]
-#[derive(AddAssign, SubAssign)]
+#[derive(Add, Sub, Mul, Div)]
+#[derive(AddAssign, SubAssign, MulAssign, DivAssign)]
 pub struct Vector3<T: Num> {
     pub x: T,
     pub y: T,
@@ -36,18 +36,6 @@ impl<T> Neg for Vector3<T> where T: Neg<Output=T> + Num {
             x: -self.x,
             y: -self.y,
             z: -self.z,
-        }
-    }
-}
-
-impl<T> Mul<T> for Vector3<T> where T: Mul<Output=T> + Num + Copy {
-    type Output = Vector3<T>;
-
-    fn mul(self, other: T) -> Self::Output {
-        Self {
-            x: self.x * other,
-            y: self.y * other,
-            z: self.z * other,
         }
     }
 }
@@ -113,6 +101,66 @@ mod tests {
             v1 -= v2;
 
             assert_eq!(expected, v1);
+        }
+
+        #[test]
+        fn mul_vector_and_scalar() {
+            let v = Vector3::new(1, 2, 3);
+            let expected = Vector3::new(-2, -4, -6);
+
+            assert_eq!(expected, v * -2);
+
+            let v = Vector3::new(1.0, 2.0, 3.0);
+            let expected = Vector3::new(-2.5, -5.0, -7.5);
+
+            assert_eq!(expected, v * -2.5);
+        }
+
+        #[test]
+        fn mul_assign_vector_and_scalar() {
+            let mut v = Vector3::new(1, 2, 3);
+            let expected = v * -2;
+
+            v *= -2;
+
+            assert_eq!(expected, v);
+
+            let mut v = Vector3::new(1.0, 2.0, 3.0);
+            let expected = v * -2.5;
+
+            v *= -2.5;
+
+            assert_eq!(expected, v);
+        }
+
+        #[test]
+        fn div_vector_and_scalar() {
+            let v = Vector3::new(-2, -4, -6);
+            let expected = Vector3::new(1, 2, 3);
+
+            assert_eq!(expected, v / -2);
+
+            let v = Vector3::new(-2.5, -5.0, -7.5);
+            let expected = Vector3::new(1.0, 2.0, 3.0);
+
+            assert_eq!(expected, v / -2.5);
+        }
+
+        #[test]
+        fn div_assign_vector_and_scalar() {
+            let mut v = Vector3::new(-2, -4, -6);
+            let expected = v / -2;
+
+            v /= -2;
+
+            assert_eq!(expected, v);
+
+            let mut v = Vector3::new(-2.5, -5.0, -7.5);
+            let expected = v / -2.5;
+
+            v /= -2.5;
+
+            assert_eq!(expected, v);
         }
     }
 }
