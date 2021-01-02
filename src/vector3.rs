@@ -58,6 +58,18 @@ impl<T: Num + Copy + ToPrimitive> Vector3<T> {
     pub fn length(self) -> f64 {
         return self.length_squared().sqrt();
     }
+
+    /// Computes the normalized vector.
+    ///
+    /// A normalized vector is the vector with length 1 in the same direction as the original
+    /// vector.
+    pub fn normalize(self) -> Vector3<f64> {
+        let length = self.length();
+        return Vector3::new(
+            self.x.to_f64().unwrap() / length,
+            self.y.to_f64().unwrap() / length,
+            self.z.to_f64().unwrap() / length);
+    }
 }
 
 impl<T: Signed> Vector3<T> {
@@ -266,6 +278,15 @@ mod tests {
             let expected = ((1 * 1 + -2 * -2 + -3 * -3) as f64).sqrt();
 
             assert_eq!(expected, v.length());
+        }
+
+        #[test]
+        fn normalize() {
+            let v = Vector3::new(1, -2, -3);
+            let length = ((1 * 1 + -2 * -2 + -3 * -3) as f64).sqrt();
+            let expected = Vector3::new(1.0 / length, -2.0 / length, -3.0 / length);
+
+            assert_eq!(expected, v.normalize());
         }
     }
 }
