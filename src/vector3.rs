@@ -1,11 +1,9 @@
-use std::ops::Neg;
-
-use derive_more::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
-use num::{Num, Signed};
+use derive_more::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
+use num::{Num, Signed, abs};
 
 #[derive(Debug, Copy, Clone, PartialEq)]
-#[derive(Add, Sub, Mul, Div)]
-#[derive(AddAssign, SubAssign, MulAssign, DivAssign)]
+#[derive(Neg)]
+#[derive(Add, Sub, Mul, Div, AddAssign, SubAssign, MulAssign, DivAssign)]
 pub struct Vector3<T: Num> {
     pub x: T,
     pub y: T,
@@ -13,12 +11,45 @@ pub struct Vector3<T: Num> {
 }
 
 impl<T: Num> Vector3<T> {
+    /// Creates a new vector.
     pub fn new(x: T, y: T, z: T) -> Vector3<T> {
         Vector3 { x, y, z }
+    }
+
+    /// Computes the dot product of this vector with the given vector.
+    ///
+    /// The dot product is calculated by multiplying the corresponding vector fields, then summing
+    /// those products.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use pbrust::vector3::Vector3;
+    ///
+    /// let v1 = Vector3::new(1, 2, 3);
+    /// let v2 = Vector3::new(2, 4, 6);
+    /// let expected = 1*2 + 2*4 + 3*6;
+    ///
+    /// assert_eq!(expected, v1.dot(v2));
+    /// ```
+    pub fn dot(self, other: Vector3<T>) -> T {
+        return self.x * other.x + self.y * other.y + self.z * other.z;
+    }
+}
+
+impl<T: Num + Copy> Vector3<T> {
+    /// Computes the cross product of this vector with the given vector.
+    pub fn cross(self, other: Vector3<T>) -> Self {
+        return Self {
+            x: self.y * other.z - self.z * other.y,
+            y: self.z * other.x - self.x * other.z,
+            z: self.x * other.y - self.y * other.x,
+        };
     }
 }
 
 impl<T: Signed> Vector3<T> {
+    /// Computes the absolute value of this vector.
     pub fn abs(&self) -> Self {
         Self {
             x: self.x.abs(),
@@ -26,17 +57,27 @@ impl<T: Signed> Vector3<T> {
             z: self.z.abs(),
         }
     }
-}
 
-impl<T> Neg for Vector3<T> where T: Neg<Output=T> + Num {
-    type Output = Self;
-
-    fn neg(self) -> Self::Output {
-        Self {
-            x: -self.x,
-            y: -self.y,
-            z: -self.z,
-        }
+    /// Computes the absolute value of the dot product of this and another vector.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use pbrust::vector3::Vector3;
+    ///
+    /// let v1 = Vector3::new(1, 2, 3);
+    /// let v2 = Vector3::new(-1, -2, -3);
+    ///
+    /// // absdot is a convenience method:
+    /// let absdot1 = v1.abs_dot(v2);
+    ///
+    /// // It's equivalent to:
+    /// let absdot2 = (v1.dot(v2) as i32).abs();
+    ///
+    /// assert_eq!(absdot1, absdot2);
+    /// ```
+    pub fn abs_dot(self, other: Vector3<T>) -> T {
+        return abs(self.dot(other));
     }
 }
 
@@ -62,6 +103,14 @@ mod tests {
 
     mod math {
         use super::*;
+
+        #[test]
+        fn neg() {
+            let v = Vector3::new(-1, 2, -3);
+            let expected = Vector3::new(1, -2, 3);
+
+            assert_eq!(expected, -v);
+        }
 
         #[test]
         fn add_vectors() {
@@ -161,6 +210,24 @@ mod tests {
             v /= -2.5;
 
             assert_eq!(expected, v);
+        }
+
+        #[test]
+        fn dot_product() {
+            let v1 = Vector3::new(1, -2, -3);
+            let v2 = Vector3::new(2, 4, -6);
+            let expected = 1 * 2 + -2 * 4 + -3 * -6;
+
+            assert_eq!(expected, v1.dot(v2));
+        }
+
+        #[test]
+        fn cross_product() {
+            let v1 = Vector3::new(1, -2, -3);
+            let v2 = Vector3::new(2, 4, -6);
+            let expected = Vector3::new(-2 * -6 - -3 * 4, -3 * 2 - 1 * -6, 1 * 4 - -2 * 2);
+
+            assert_eq!(expected, v1.cross(v2));
         }
     }
 }
