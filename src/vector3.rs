@@ -1,5 +1,5 @@
 use derive_more::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
-use num::{Num, Signed, abs};
+use num::{abs, Num, Signed, ToPrimitive};
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 #[derive(Neg)]
@@ -37,7 +37,7 @@ impl<T: Num> Vector3<T> {
     }
 }
 
-impl<T: Num + Copy> Vector3<T> {
+impl<T: Num + Copy + ToPrimitive> Vector3<T> {
     /// Computes the cross product of this vector with the given vector.
     pub fn cross(self, other: Vector3<T>) -> Self {
         return Self {
@@ -45,6 +45,18 @@ impl<T: Num + Copy> Vector3<T> {
             y: self.z * other.x - self.x * other.z,
             z: self.x * other.y - self.y * other.x,
         };
+    }
+
+    // Should this actually return T?
+    /// Computes the squared length of this vector.
+    pub fn length_squared(self) -> f64 {
+        let length_squared = self.x * self.x + self.y * self.y + self.z * self.z;
+        return length_squared.to_f64().expect("Failed to convert to f64!");
+    }
+
+    /// Computes the length of this vector.
+    pub fn length(self) -> f64 {
+        return self.length_squared().sqrt();
     }
 }
 
@@ -228,6 +240,32 @@ mod tests {
             let expected = Vector3::new(-2 * -6 - -3 * 4, -3 * 2 - 1 * -6, 1 * 4 - -2 * 2);
 
             assert_eq!(expected, v1.cross(v2));
+        }
+
+        #[test]
+        fn length_squared() {
+            let v = Vector3::new(1, -2, -3);
+            let expected = (1 * 1 + -2 * -2 + -3 * -3) as f64;
+
+            assert_eq!(expected, v.length_squared());
+
+            let v = Vector3::new(1.0, -2.0, -3.0);
+            let expected = (1 * 1 + -2 * -2 + -3 * -3) as f64;
+
+            assert_eq!(expected, v.length_squared());
+        }
+
+        #[test]
+        fn length() {
+            let v = Vector3::new(1, -2, -3);
+            let expected = ((1 * 1 + -2 * -2 + -3 * -3) as f64).sqrt();
+
+            assert_eq!(expected, v.length());
+
+            let v = Vector3::new(1.0, -2.0, -3.0);
+            let expected = ((1 * 1 + -2 * -2 + -3 * -3) as f64).sqrt();
+
+            assert_eq!(expected, v.length());
         }
     }
 }
